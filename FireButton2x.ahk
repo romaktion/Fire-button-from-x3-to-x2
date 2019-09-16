@@ -1,12 +1,18 @@
-﻿; Example #4: Detects when a key has been double-pressed (similar to double-click).
-; KeyWait is used to stop the keyboard's auto-repeat feature from creating an unwanted
-; double-press when you hold down the RControl key to modify another key.  It does this byS
-; keeping the hotkey's thread running, which blocks the auto-repeats by relying upon
-; #MaxThreadsPerHotkey being at its default setting of 1.
-; Note: There is a more elaborate script to distinguish between single, double, and
-; triple-presses at the bottom of the SetTimer page.
+﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+; #Warn  ; Enable warnings to assist with detecting common errors.
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
-global delay := 250
+global delay := 150
+
+global Toggle := 0
+
+reset()
+{
+	Sleep, delay
+	Toggle := 0
+	return
+}
 
 ~LButton::
 if (A_PriorHotkey <> "~LButton" or A_TimeSincePriorHotkey > delay)
@@ -16,51 +22,15 @@ if (A_PriorHotkey <> "~LButton" or A_TimeSincePriorHotkey > delay)
 }
 else
 {
-	Hotkey, LButton, DoNothing
-	reset2()
-}
-return
-
-DoNothing:
-return
-
-Do:
-mouseClick()
-if (A_PriorHotkey <> "~LButton" or A_TimeSincePriorHotkey > delay)
-{
-	; Too much time between presses, so this isn't a double-press.
-	KeyWait, LButton
-}
-else
-{
-	Hotkey, LButton, DoNothing
+	Toggle := 1
 	reset()
-	return
 }
 return
 
-mouseClick()
-{
-	Send {LButton down}
-	Loop
-	{
-		if !GetKeyState("LButton", "P")
-			Break
-	}
-	Send {LButton up}
-	return
-}
+^LButton::Send {Click}
+^RButton::Send {Click Right}
 
-reset()
-{
-	Sleep, 60
-	Hotkey, LButton, Do
-	return
-}
-
-reset2()
-{
-	Sleep, delay
-	Hotkey, LButton, Do
-	return
-}
+#If Toggle
+LButton::
+Toggle := 0
+return
