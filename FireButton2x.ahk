@@ -27,8 +27,7 @@ else
 }
 return
 
-^LButton::Send {Click}
-^RButton::Send {Click Right}
+
 
 #If Toggle
 LButton::
